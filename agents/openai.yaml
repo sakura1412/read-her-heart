@@ -1,0 +1,7 @@
+interface:
+  display_name: "读懂Ta的心"
+  short_description: "通过实查系统及业务流程全面分析需求的必要性价值风险与优先级"
+  default_prompt: "Use $read-ta-de-xin to assess whether this requirement is worth building."
+
+policy:
+  allow_implicit_invocation: true
