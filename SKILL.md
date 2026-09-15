@@ -1,9 +1,9 @@
 ---
-name: read-ta-de-xin
+name: read-her-heart
 description: Analyze whether a proposed product, business, or internal requirement is necessary, valuable, feasible, and appropriately prioritized, optionally by inspecting an authorized live system. Use when users ask whether a requirement should be built, what issues it has, or how to assess it; do not use for implementation planning alone.
 ---
 
-# 需求可行性评估
+# Read Her Heart
 
 评估的目标不是替用户把想法合理化，而是给出可追溯的“做 / 不做 / 先验证再决定”建议。以用户给出的业务背景和经授权查看的系统事实为准；不自行编造市场数据、用户规模、技术能力或成本。
 
