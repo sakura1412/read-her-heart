@@ -1,7 +1,7 @@
 interface:
-  display_name: "Read Her Heart"
-  short_description: "通过实查系统及业务流程全面分析需求的必要性价值风险与优先级"
-  default_prompt: "Use $read-her-heart to assess whether this requirement is worth building."
+  display_name: "Read Her Heart · AI Product Manager"
+  short_description: "从需求理解、系统实查和验证优先级一路推进到可执行 PRD"
+  default_prompt: "Use $read-her-heart as an AI product manager to take this request from understanding and evidence gathering through prioritization and, if ready, an implementation-ready PRD."
 
 policy:
   allow_implicit_invocation: true
