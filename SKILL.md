@@ -1,6 +1,6 @@
 ---
 name: read-her-heart
-description: Analyze a proposed product, business, or internal requirement through a staged, evidence-based decision chain before recommending investment, optionally by inspecting an authorized live system. Use when users ask whether a requirement reflects a real problem, is worth solving, has the right solution, or should be built; do not use for implementation planning alone.
+description: Classify and analyze a proposed product, business, or internal requirement through a staged, evidence-based decision chain before recommending investment, optionally by inspecting an authorized live system. Use when users ask what kind of requirement they have, whether it reflects a real problem, is worth solving, has the right solution, or should be built; do not use for implementation planning alone.
 ---
 
 # Read Her Heart
@@ -24,9 +24,37 @@ description: Analyze a proposed product, business, or internal requirement throu
 
 系统实查只能证明当前产品、流程和界面层面可观察到的事实，不能单独证明后端架构、数据模型、API、性能与并发能力、历史数据迁移、安全架构或真实研发工作量。除非另有代码、接口、架构文档、技术预研或研发负责人确认，技术可行性只能标为“初步判断”或“待技术确认”，不得因界面改动看似简单而给出确定成本。
 
+## 需求分类与分析路由
+
+进入七层决策链前，先把原始表达拆成可独立决策的原子需求，并采用“双轴分类”：**主类型**说明需求本身的性质，**来源/驱动标签**说明它为什么进入评估。每个原子需求选择一个主类型，可以有多个来源标签；无法确定时写“待分类”，不得强行归类。
+
+主类型包括：
+
+- **A 功能需求**：新增或改变用户能完成的任务、能力、规则或流程，例如批量导入客户。
+- **B 体验需求**：改善易用性、效率、可理解性、可访问性或操作感受，例如客户列表难用。
+- **C 业务策略需求**：涉及市场、增长、商业模式、定价、产品方向或能力布局，例如是否做 AI 销售助手。
+- **D 合规/风险需求**：用于满足法律、监管、审计、隐私、安全或内控要求，例如增加操作日志。
+- **E 技术/工程需求**：涉及架构、性能、稳定性、可维护性、研发效率或技术债，例如是否引入 Redis。
+- **H 运营/流程需求**：改变内部人员、服务交付、审核、协同或人工操作流程。
+- **I 数据/分析需求**：新增数据采集、指标、报表、洞察或决策支持能力。
+- **J 集成/生态需求**：连接第三方系统、渠道、设备、API 或上下游合作方。
+- **K 缺陷/稳定性需求**：现有行为偏离已确认预期，或发生故障、回归、数据错误与可靠性问题。
+
+来源/驱动标签至少包括：
+
+- **F 领导指定**：领导或决策者直接提出或已作出方向性决定。
+- **G 用户强诉求**：一个或多个客户/用户高频、强烈或带有流失风险地提出。
+- 还可标记 **监管强制、合同承诺、数据/事故驱动、内部效率、市场/竞品驱动** 等实际来源。
+
+“领导指定”和“用户强诉求”不是需求成立、方案正确或应立即开发的证据。应分别确认决策边界、目标、代表性、影响规模和不满足的后果。若领导已经明确作出不可讨论的决策，评估重点改为范围、方案、风险和投入方式，但不得伪装成独立验证所得的结论。
+
+原始表达可能同时包含问题、目标和方案。像“需要 Redis”“增加一个 XX 页面”应先标记为**候选方案**，再追溯其要解决的问题；混合需求必须拆分后分别分类和评估。分类只决定分析重点，不改变七层决策顺序，也不能代替证据。
+
+分类后，写明该类型需要重点回答的问题、最低证据和常见误判。类型明显时可直接使用上述规则；类型混合、存在候选方案或需要更详细路由时，读取 [需求分类与分析路由](references/requirement-classification.md)。输出表格时使用 [需求分析模板](references/analysis-templates.md) 中的“需求分类卡”。
+
 ## 工作方式
 
-1. 先复述待评估需求、用户提出的方案、预期决策与已知背景。若启用系统实查模式，先梳理现有系统的角色、入口、关键任务流程、数据/状态、约束与相邻功能。将每一项判断标为“已知事实”“合理假设”或“待验证”。
+1. 先拆分并分类需求，再复述待评估的问题、目标、用户提出的方案、预期决策与已知背景。明确主类型、来源/驱动标签、分类理由与置信度，并说明分类将如何改变分析重点。若启用系统实查模式，先做初步分类，再根据实际角色、入口、关键任务流程、数据/状态、约束与相邻功能修正。将每一项判断标为“已知事实”“合理假设”或“待验证”。
 2. 必须按以下顺序完成七层决策链，不得跳过或先写最终结论：
    1. **是不是真的有问题？** 区分现象、抱怨、解决方案和底层问题；检查受影响用户、发生场景、频率、严重度、当前行为及反例。
    2. **问题是否值得解决？** 判断用户损失、影响范围、业务价值、战略一致性、机会成本和不解决的后果；必须用下述价值判断链把抽象价值落到可验证指标上。
@@ -74,7 +102,7 @@ description: Analyze a proposed product, business, or internal requirement throu
 
 除非用户指定格式，使用以下结构并保持简洁。最终投入建议必须放在七层分析之后：
 
-1. **需求与决策背景**：原始问题、目标用户、场景、用户提出的方案、期望结果和缺失信息。
+1. **需求分类与决策背景**：把混合表达拆成原子需求；列出规范化的问题/目标、主类型、来源/驱动标签、候选方案、分类理由、置信度，以及该分类对应的分析重点。随后说明目标用户、场景、期望结果和缺失信息。
 2. **当前系统事实**（仅实查模式）：检查范围/角色、现有流程与关键约束、与需求相关的可复用能力或冲突点；使用脱敏描述。
 3. **七层决策链**：严格依次回答问题真实性、解决价值、方案正确性、更便宜的替代方案、证据充分性、风险可接受性和投入程度。每层展示证据、反证、假设、判断、置信度、未确认项及下一步；第二层必须按“需求 → 价值假设 → 影响指标 → 当前基线 → 预期变化 → 证据来源 → 可信度”展示完整价值判断链。
 4. **辅助分析**：先标明简单、中等复杂或复杂/战略，再只呈现复杂度规则允许且真正帮助某一层判断的方法结果。简单需求不展示任何框架；中等复杂需求最多展示 1～2 个方法。
