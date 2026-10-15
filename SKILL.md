@@ -33,14 +33,14 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 | 06 Feasibility | 评估产品、交互、技术、数据、运营与合规可行性 | [06 可行性](references/06-feasibility.md) | 可行性与风险记录 |
 | 07 Validation | 判断证据缺口并设计最低成本的决策型验证 | [07 验证设计](references/07-validation.md) | 验证计划或证据充分声明 |
 | 08 Prioritization | 比较候选项、依赖和投入，形成优先级与投入决策 | [08 优先级](references/08-prioritization.md) | 优先级与投入决策 |
-| 09 Acceptance Criteria | 根据选定范围和方案生成可测试的验收标准 | [09 验收标准](references/09-acceptance-criteria.md) | 按需求编号追溯的验收条目与待确认项 |
+| 09 Acceptance Criteria | 为本期每个功能点生成 QA 可据以写用例的验收标准 | [09 验收标准](references/09-acceptance-criteria.md) | 需求 ID → FR 功能点 → AC 场景与待确认项 |
 | 10 PRD Generation | 将方案与验收标准合成为可实施的 PRD | 仅达到 PRD 门槛时读取 [10 PRD 生成](references/10-prd-generation.md) | PRD 或 PRD 阻塞清单 |
 
 02 是条件阶段：没有系统地址、授权或实查必要性时记录“未实查”及系统未知项，然后继续；不得要求用户为了使用本 Skill 必须提供账号密码。普通模式下，08 选择实施投入后进入 09 形成正式验收标准，再进入 10 生成 PRD；不投入或验证投入不自动进入这两阶段。强制执行模式是唯一的产品评估门槛例外。
 
 07 可由前面的阶段按需调用。每次验证绑定需求/候选 ID、具体假设和来源阶段；结果先回填该判断，再继续最早尚未完成或被新证据影响的阶段。一次验证成功不等于整个需求获准实施，失败也不自动否定整个需求。未受影响的既有结论直接复用，不重跑全流程；只有实施所需的判断均完成、证据足够且风险可接受，才交由 08 决定是否实施。详细分支见 [07 验证设计](references/07-validation.md)。
 
-09 的验收标准回答“做成什么样算通过”，不替代 07 的决策型验证，也不表示功能已经测试通过。用户只要验收标准时可以止于 09；普通模式若未获实施投入，只能给显著标记的草案，不据此进入正式 PRD。
+09 的验收标准回答“每个功能点做成什么样算通过”：已确定条目须让 QA 无需猜测产品规则即可写出测试用例；不替代 07 的决策型验证，也不表示功能已经测试通过。用户只要验收标准时可以止于 09；普通模式若未获实施投入，只能给显著标记的草案，不据此进入正式 PRD。
 
 ## 七层决策脊柱
 
@@ -83,7 +83,7 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 
 方法数量不包含五维复杂度判断、十阶段工作流、七层决策记录和价值判断链。复杂度决定需求分析、验收标准和 PRD 的详略，不替代价值、优先级或安全判断。强制执行也先定复杂度，用于方案、验收标准和 PRD 的细化，不恢复被跳过的产品评估门槛，不因复杂度未知阻塞 PRD。
 
-09 按复杂度生成适量、可测试的验收条目；进入 10 后沿用同一五维判断选择 PRD 详略：简单需求用直观的简版说明需求和验收，中等复杂需求写必要流程与边界，复杂/战略需求按现有完整结构输出。文档层级不改变普通 PRD 准入门槛、强制执行规则或 PDF 交付；见 [09 验收标准](references/09-acceptance-criteria.md) 和 [10 PRD 生成](references/10-prd-generation.md#按复杂度选择-prd-详略)。
+09 按功能点生成可测试条目，复杂度只调整适用场景的覆盖面，不降低单条明确度；进入 10 后沿用五维判断选择 PRD 详略：简单需求用直观简版，中等需求写必要流程与边界，复杂/战略需求按现有完整结构输出。文档层级不改变普通 PRD 准入门槛、强制执行规则或 PDF 交付；见 [09 验收标准](references/09-acceptance-criteria.md) 和 [10 PRD 生成](references/10-prd-generation.md#按复杂度选择-prd-详略)。
 
 ### 行动出口与交付物
 
