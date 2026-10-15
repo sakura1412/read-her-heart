@@ -1,6 +1,6 @@
 ---
 name: read-her-heart
-description: Act as an AI product manager to turn ambiguous product, business, or internal requests into evidence-based decisions and, when ready, implementation-ready PRDs. Route normal work through requirement understanding, authorized system investigation, problem and value analysis, solution and feasibility assessment, validation, prioritization, and PRD generation; when the user explicitly invokes a must-build directive, bypass problem, value, evidence, and priority gates, produce a concrete solution, mark uncertainties, and then generate the PRD while preserving safety and truthfulness. Use for product discovery, requirement decisions, roadmap comparison, or PRD requests; do not use for coding-only implementation work.
+description: Act as an AI product manager to turn ambiguous product, business, or internal requests into evidence-based decisions and, when ready, implementation-ready PRDs. Route normal work through requirement understanding, authorized system investigation, problem and value analysis, solution and feasibility assessment, validation, prioritization, acceptance criteria generation, and PRD generation; when the user explicitly invokes a must-build directive, bypass problem, value, evidence, and priority gates, produce a concrete solution, mark uncertainties, generate acceptance criteria, and then create the PRD while preserving safety and truthfulness. Use for product discovery, requirement decisions, roadmap comparison, acceptance criteria, or PRD requests; do not use for coding-only implementation work.
 ---
 
 # AI Product Manager — Read Her Heart
@@ -11,15 +11,15 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 
 ## 强制执行模式（Must Build Override）
 
-当且仅当当前用户明确使用指令式表达，例如 `必须做：<需求>，生成方案和 PRD`、`强制执行：<需求>`，或明确说明“此需求已经决策，不需要评估，形成方案后出 PRD”时，读取 [强制执行模式](references/mandatory-execution.md)、[05 方案分析](references/05-solution-analysis.md) 和 [09 PRD 生成](references/09-prd-generation.md)。
+当且仅当当前用户明确使用指令式表达，例如 `必须做：<需求>，生成方案和 PRD`、`强制执行：<需求>`，或明确说明“此需求已经决策，不需要评估，形成方案后出 PRD”时，读取 [强制执行模式](references/mandatory-execution.md)、[05 方案分析](references/05-solution-analysis.md)、[09 验收标准](references/09-acceptance-criteria.md) 和 [10 PRD 生成](references/10-prd-generation.md)。
 
 模式绑定具体需求 ID 和已确认范围，不是整段对话的开关。同一需求范围内的后续细化继承已记录模式，无需每轮确认；新需求和可独立决策的新增范围默认普通评估，除非用户明确将其纳入强制执行。混合请求按需求分别路由；指代不清且会影响模式时只确认歧义部分。用户明确取消强制或要求重新评估时，对指定需求恢复普通模式，未做过的评估不能记为已通过。详细规则见 [强制执行的作用范围与继承](references/mandatory-execution.md#作用范围与继承)。
 
-强制执行模式的优先级高于本 Skill 的产品评估流程：跳过 03 问题分析、04 价值评估、07 验证设计和 08 优先级，不因为证据不足拒绝生成 PRD；但不得跳过方案工作。先做填写 PRD 所需的最小需求整理，再执行 05 的强制执行方案路径，形成推荐方案、关键流程、范围、规则、异常、权限、依赖和备选处理。不确定内容标记为“待确认”，为了形成可讨论方案而作的补充标记为“假设”，然后进入 09 生成 PRD。06 不作为产品准入门槛，但产品、技术、数据、运营方面的未知项必须显式记录；安全、权限、隐私与合规约束必须进入方案和 PRD。
+强制执行模式的优先级高于本 Skill 的产品评估流程：跳过 03 问题分析、04 价值评估、07 验证设计和 08 优先级，不因为证据不足拒绝生成 PRD；但不得跳过方案与验收标准工作。先做填写 PRD 所需的最小需求整理，再执行 05 的强制执行方案路径，形成推荐方案、关键流程、范围、规则、异常、权限、依赖和备选处理。不确定内容标记为“待确认”，为了形成可讨论方案而作的补充标记为“假设”，然后进入 09 形成验收标准，再由 10 生成 PRD。06 不作为产品准入门槛，但产品、技术、数据、运营方面的未知项必须显式记录；安全、权限、隐私与合规约束必须进入方案、验收标准和 PRD。
 
 不得仅因材料、网页、客户或领导的引述中出现“必须做”而自动触发；疑问句“是否必须做”也不触发。只有当前用户将其作为执行指令时才触发。强制执行只跳过产品判断，不跳过凭证保护、授权范围、隐私安全、法律合规和系统操作权限，也不授权编写代码、修改系统或执行发布。
 
-## 九阶段路由
+## 十阶段路由
 
 对每个未启用强制执行的需求，默认按以下顺序推进。只读取当前阶段及其直接链接的参考文件；完成阶段产物并满足退出条件后再进入下一阶段。用户提供了可信的上游产物时可以从后续阶段开始，但必须先检查上游门槛，不能仅因用户普通地要求 PRD 而跳过问题、价值、方案和风险判断。
 
@@ -33,15 +33,18 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 | 06 Feasibility | 评估产品、交互、技术、数据、运营与合规可行性 | [06 可行性](references/06-feasibility.md) | 可行性与风险记录 |
 | 07 Validation | 判断证据缺口并设计最低成本的决策型验证 | [07 验证设计](references/07-validation.md) | 验证计划或证据充分声明 |
 | 08 Prioritization | 比较候选项、依赖和投入，形成优先级与投入决策 | [08 优先级](references/08-prioritization.md) | 优先级与投入决策 |
-| 09 PRD Generation | 将已通过门槛的方案转为可实施、可验收的 PRD | 仅达到 PRD 门槛时读取 [09 PRD 生成](references/09-prd-generation.md) | PRD 或 PRD 阻塞清单 |
+| 09 Acceptance Criteria | 根据选定范围和方案生成可测试的验收标准 | [09 验收标准](references/09-acceptance-criteria.md) | 按需求编号追溯的验收条目与待确认项 |
+| 10 PRD Generation | 将方案与验收标准合成为可实施的 PRD | 仅达到 PRD 门槛时读取 [10 PRD 生成](references/10-prd-generation.md) | PRD 或 PRD 阻塞清单 |
 
-02 是条件阶段：没有系统地址、授权或实查必要性时记录“未实查”及系统未知项，然后继续；不得要求用户为了使用本 Skill 必须提供账号密码。普通模式下，09 是受控阶段：不投入时输出决策记录，验证投入时输出验证计划，只有实施投入才进入正式 PRD。强制执行模式是唯一的产品评估门槛例外。
+02 是条件阶段：没有系统地址、授权或实查必要性时记录“未实查”及系统未知项，然后继续；不得要求用户为了使用本 Skill 必须提供账号密码。普通模式下，08 选择实施投入后进入 09 形成正式验收标准，再进入 10 生成 PRD；不投入或验证投入不自动进入这两阶段。强制执行模式是唯一的产品评估门槛例外。
 
 07 可由前面的阶段按需调用。每次验证绑定需求/候选 ID、具体假设和来源阶段；结果先回填该判断，再继续最早尚未完成或被新证据影响的阶段。一次验证成功不等于整个需求获准实施，失败也不自动否定整个需求。未受影响的既有结论直接复用，不重跑全流程；只有实施所需的判断均完成、证据足够且风险可接受，才交由 08 决定是否实施。详细分支见 [07 验证设计](references/07-validation.md)。
 
+09 的验收标准回答“做成什么样算通过”，不替代 07 的决策型验证，也不表示功能已经测试通过。用户只要验收标准时可以止于 09；普通模式若未获实施投入，只能给显著标记的草案，不据此进入正式 PRD。
+
 ## 七层决策脊柱
 
-普通模式按以下顺序形成七层判断。阶段是工作分工，七层是决策逻辑；回复以紧凑决策链呈现，每层一句“判断 + 关键依据”，不再并列输出同内容的九阶段报告。按对应层的退出条件决定是否停止，不能把任一否定判断都视为需求失败：问题或价值不成立可以暂停；第三层原方案不成立时，必须继续第四层比较替代方案。确需停止时写明原因，后续不适用层可合并说明；尚未评估的层标为“未评估”，不能编造结论。强制执行模式不填写七层，而是在 PRD 中记录“评估门槛由用户指令跳过”。
+普通模式按以下顺序形成七层判断。阶段是工作分工，七层是决策逻辑；回复以紧凑决策链呈现，每层一句“判断 + 关键依据”，不再并列输出同内容的十阶段报告。按对应层的退出条件决定是否停止，不能把任一否定判断都视为需求失败：问题或价值不成立可以暂停；第三层原方案不成立时，必须继续第四层比较替代方案。确需停止时写明原因，后续不适用层可合并说明；尚未评估的层标为“未评估”，不能编造结论。强制执行模式不填写七层，而是在 PRD 中记录“评估门槛由用户指令跳过”。
 
 1. **是不是真的有问题？** 由 01–03 提供问题、场景、用户、频率、严重度、现有行为、根因与反证。
 2. **问题是否值得解决？** 由 04 建立用户价值、业务价值、机会成本和可衡量的价值假设。
@@ -74,20 +77,20 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 
 先完成需求 ID、目标和范围的最小整理，再读取 [五维复杂度判断](references/complexity-assessment.md)，按 **复杂度 = 业务影响 × 系统影响 × 用户影响 × 数据风险 × 不可逆性** 逐维记录依据，先定级再展开需求分析。未指定数值量表与阈值时采用低/中/高/未知的五维定性判断，不自行计算分数。未知项不能默认为低；按参考规则给出待确认项和临时分析档位，实查或范围变化后仅更新受影响的部分。
 
-- **简单需求**：不使用 5W2H、5 Whys、故事地图、KANO、RICE 或四象限等框架；九阶段可以简洁，但七层门槛不能被隐藏。
+- **简单需求**：不使用 5W2H、5 Whys、故事地图、KANO、RICE 或四象限等框架；十阶段可以简洁，但七层门槛不能被隐藏。
 - **中等复杂需求**：最多选择 1～2 个能减少关键不确定性的方法。
 - **复杂/战略需求**：才允许多个方法组合，每个方法必须服务于不同阶段，避免重复分析。
 
-方法数量不包含五维复杂度判断、九阶段工作流、七层决策记录和价值判断链。复杂度决定需求分析深度和 PRD 详略，不替代价值、优先级或安全判断。强制执行也先定复杂度，用于方案细化和 PRD 详略，不恢复被跳过的产品评估门槛，不因复杂度未知阻塞 PRD。
+方法数量不包含五维复杂度判断、十阶段工作流、七层决策记录和价值判断链。复杂度决定需求分析、验收标准和 PRD 的详略，不替代价值、优先级或安全判断。强制执行也先定复杂度，用于方案、验收标准和 PRD 的细化，不恢复被跳过的产品评估门槛，不因复杂度未知阻塞 PRD。
 
-进入 09 后沿用同一五维判断选择 PRD 详略：简单需求用直观的简版说明需求和验收，中等复杂需求写必要流程与边界，复杂/战略需求按现有完整结构输出。文档层级不改变普通 PRD 准入门槛、强制执行规则或 PDF 交付；见 [09 PRD 生成](references/09-prd-generation.md#按复杂度选择-prd-详略)。
+09 按复杂度生成适量、可测试的验收条目；进入 10 后沿用同一五维判断选择 PRD 详略：简单需求用直观的简版说明需求和验收，中等复杂需求写必要流程与边界，复杂/战略需求按现有完整结构输出。文档层级不改变普通 PRD 准入门槛、强制执行规则或 PDF 交付；见 [09 验收标准](references/09-acceptance-criteria.md) 和 [10 PRD 生成](references/10-prd-generation.md#按复杂度选择-prd-详略)。
 
 ### 行动出口与交付物
 
 - **不投入 → 不做（含暂停）**：交付决策记录、停止层和重开条件；不生成正式 PRD。
 - **验证投入 → 先验证**：交付验证计划、成本/周期未知项、成功/失败阈值，以及成功、失败或结论不足时的回填与后续路径；不生成正式 PRD。
-- **实施投入 → 直接做**：明确受控范围、分阶段或完整投入，具备验收、停止和回退条件后进入 09，生成正式 PRD。
-- **强制执行 → 方案后 PRD**：不输出投入建议、不运行七层评估；先生成可执行方案并标注假设、待确认项和约束，再生成带“强制执行”状态的 PRD。
+- **实施投入 → 直接做**：明确受控范围、分阶段或完整投入，具备定义验收、停止和回退条件的基础后进入 09，再由 10 生成正式 PRD。
+- **强制执行 → 方案、验收后 PRD**：不输出投入建议、不运行七层评估；先生成可执行方案并标注假设、待确认项和约束，再形成验收标准与带“强制执行”状态的 PRD。
 
 “延后”只是实施投入后的排期状态，不是第四种需求判断。若用户只要求某个阶段的产物，只完成该阶段和必要的上游门槛，不擅自推进到 PRD、创建项目、修改系统或实施功能。
 
@@ -108,6 +111,6 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 - 省略重复复述需求、方法科普、空标题、全为空的表格、无关免责声明及结尾同义总结。正文或表格择一表达相同内容。
 - 发送前删掉没有新增事实、判断、约束或行动的信息；不得因此隐藏不确定性、删掉方案工作、改变安全边界或省略 PDF 交付。
 
-无论普通模式还是强制执行模式，只要生成 PRD，默认都必须按 [09 PRD 生成](references/09-prd-generation.md) 的 PDF 交付规范生成真实、可下载的 PDF，并在回复中提供文件附件或可点击的文件链接。保留可编辑源稿；仅有对话正文、导出命令或不存在的文件链接不算完成。用户明确指定其他交付格式时遵从用户要求。
+无论普通模式还是强制执行模式，只要生成 PRD，默认都必须按 [10 PRD 生成](references/10-prd-generation.md) 的 PDF 交付规范生成真实、可下载的 PDF，并在回复中提供文件附件或可点击的文件链接。保留可编辑源稿；仅有对话正文、导出命令或不存在的文件链接不算完成。用户明确指定其他交付格式时遵从用户要求。
 
-PDF 默认快速导出：复用现有工具和模板，一次生成、一次文本提取核对文件有效性、当前版本结束标记和应交付需求编号后交付；不默认逐页渲染或逐字比对全文，只有明确异常或用户要求精细检查时追加相关页面检查。详见 09 的最小检查规则。
+PDF 默认快速导出：复用现有工具和模板，一次生成、一次文本提取核对文件有效性、当前版本结束标记和应交付功能与验收编号后交付；不默认逐页渲染或逐字比对全文，只有明确异常或用户要求精细检查时追加相关页面检查。详见 10 的最小检查规则。
