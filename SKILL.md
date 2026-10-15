@@ -9,6 +9,8 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 
 关键陈述区分 **已知事实 / 合理假设 / 待验证**，可在同一段或同一表格中统一标注，不逐句重复标签。不编造用户规模、市场数据、指标基线、预期提升、研发成本或工期。系统观察、用户反馈、领导要求和竞品能力都只是特定范围的证据，不自动等于普遍事实。
 
+开始新需求或新项目的分析时，先确认项目形态：**改造已有系统，还是从 0 到 1 创建新系统？** 上下文已明确则记录并跳过追问；未明确时先问这一句，再按回答选择 01 的现状口径和 02 的适用性。0→1 项目不需要提供目标系统地址或账号；已有系统也只在实查必要且获授权时才需要访问入口。跨新旧系统的项目分别记录新建范围和需核验的既有依赖，不强迫归入单一路径。
+
 ## 强制执行模式（Must Build Override）
 
 当且仅当当前用户明确使用指令式表达，例如 `必须做：<需求>，生成方案和 PRD`、`强制执行：<需求>`，或明确说明“此需求已经决策，不需要评估，形成方案后出 PRD”时，读取 [强制执行模式](references/mandatory-execution.md)、[05 方案分析](references/05-solution-analysis.md)、[09 验收标准](references/09-acceptance-criteria.md) 和 [10 PRD 生成](references/10-prd-generation.md)。
@@ -25,8 +27,8 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 
 | 阶段 | 目标 | 必读参考 | 核心产物 |
 | --- | --- | --- | --- |
-| 01 Requirement Understanding | 最小整理、拆分分类并先判断五维复杂度，确定后续分析深度 | [01 需求理解](references/01-requirement-understanding.md) | 需求理解卡与复杂度路由 |
-| 02 System Investigation | 在明确授权下核实现有系统、流程与约束 | 仅实查时读取 [02 系统实查](references/02-system-investigation.md) | 系统事实记录 |
+| 01 Requirement Understanding | 先确认已有系统改造或 0→1 新建，再整理、分类并判断五维复杂度 | [01 需求理解](references/01-requirement-understanding.md) | 项目形态、需求理解卡与复杂度路由 |
+| 02 System Investigation | 仅在需要且获授权时核验实际存在的系统、流程与约束 | 仅实查时读取 [02 系统实查](references/02-system-investigation.md) | 系统事实记录或不适用说明 |
 | 03 Problem Analysis | 区分现象、方案与根因，验证问题是否成立 | [03 问题分析](references/03-problem-analysis.md) | 问题定义与根因判断 |
 | 04 Value Assessment | 验证问题是否值得解决及价值如何衡量 | [04 价值评估](references/04-value-assessment.md) | 价值判断链 |
 | 05 Solution Analysis | 评估用户方案并比较更便宜的替代方案 | [05 方案分析](references/05-solution-analysis.md) | 方案比较与推荐候选 |
@@ -36,7 +38,7 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 | 09 Acceptance Criteria | 为本期每个功能点生成 QA 可据以写用例的验收标准 | [09 验收标准](references/09-acceptance-criteria.md) | 需求 ID → FR 功能点 → AC 场景与待确认项 |
 | 10 PRD Generation | 将方案与验收标准合成为可实施的 PRD | 仅达到 PRD 门槛时读取 [10 PRD 生成](references/10-prd-generation.md) | PRD 或 PRD 阻塞清单 |
 
-02 是条件阶段：没有系统地址、授权或实查必要性时记录“未实查”及系统未知项，然后继续；不得要求用户为了使用本 Skill 必须提供账号密码。普通模式下，08 选择实施投入后进入 09 形成正式验收标准，再进入 10 生成 PRD；不投入或验证投入不自动进入这两阶段。强制执行模式是唯一的产品评估门槛例外。
+02 是条件阶段：0→1 且无既有依赖系统需核验，或已有系统但无需实查时记“不适用”；确需实查但缺少入口或授权时记“未实查”及相关未知项，然后继续。不得要求用户为了使用本 Skill 提供账号密码。普通模式下，08 选择实施投入后进入 09 形成正式验收标准，再进入 10 生成 PRD；不投入或验证投入不自动进入这两阶段。强制执行模式是唯一的产品评估门槛例外。
 
 07 可由前面的阶段按需调用。每次验证绑定需求/候选 ID、具体假设和来源阶段；结果先回填该判断，再继续最早尚未完成或被新证据影响的阶段。一次验证成功不等于整个需求获准实施，失败也不自动否定整个需求。未受影响的既有结论直接复用，不重跑全流程；只有实施所需的判断均完成、证据足够且风险可接受，才交由 08 决定是否实施。详细分支见 [07 验证设计](references/07-validation.md)。
 
@@ -68,7 +70,7 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 - 输入材料及覆盖范围。
 - 新增事实、假设、反证和未知项。
 - 阶段产物与结论置信度。
-- 退出条件是否满足：**通过 / 有条件通过 / 未通过 / 不适用**。
+- 退出条件是否满足：**通过 / 有条件通过 / 未通过 / 不适用**；02 未获访问条件时可另记“未实查”，不得等同“已核实”。
 - 下一阶段、需要补充的负责人或停止原因。
 
 使用 [共享分析模板](references/analysis-templates.md) 记录跨阶段决策。回复只呈现影响判断的新增发现、当前阻塞或下一步；不要逐阶段播报相同计划，或为了形式完整展示全套模板。
