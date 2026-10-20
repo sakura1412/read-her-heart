@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "REQ-001",
+  "title": "示例：客户批量导入（保存前替换）",
+  "project": "示例项目（保存前替换）",
+  "mode": "normal",
+  "scope": "合成示例范围；替换为已确认的本期目标和排除项",
+  "status": "评估中",
+  "priority": null,
+  "dependencies": [],
+  "decisions": [],
+  "next_action": "确认目标角色、场景与现有处理方式",
+  "source_refs": [],
+  "analysis_batch": null,
+  "links": {},
+  "analysis": {}
+}

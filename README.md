@@ -10,7 +10,7 @@
 [![Language](https://img.shields.io/badge/language-中文-blue?style=flat-square)](#)
 [![GitHub last commit](https://img.shields.io/github/last-commit/sakura1412/read-her-heart?style=flat-square)](https://github.com/sakura1412/read-her-heart/commits/main)
 
-[快速开始](#快速开始) · [工作流](#十阶段产品工作流) · [批量需求](#批量需求与需求池) · [完整案例与评测](#完整案例与回归评测) · [输出模板](#可复用输出模板) · [外部扫描](#可选外部扫描) · [验收标准](#验收标准在-prd-之前) · [PRD 门槛](#prd-准入门槛) · [安全边界](#系统实查与安全边界)
+[快速开始](#快速开始) · [工作流](#十阶段产品工作流) · [批量需求](#批量需求与需求池) · [跨会话需求库](#跨会话需求库与-backlog) · [完整案例与评测](#完整案例与回归评测) · [输出模板](#可复用输出模板) · [外部扫描](#可选外部扫描) · [验收标准](#验收标准在-prd-之前) · [PRD 门槛](#prd-准入门槛) · [安全边界](#系统实查与安全边界)
 
 </div>
 
@@ -51,6 +51,7 @@ Read Her Heart 将 Codex 变成一个有决策纪律的 AI 产品经理。它不
 - 分层评估产品、交互、技术、数据、运营、安全和合规可行性。
 - 针对关键不确定性设计最低成本、能够改变决策的验证。
 - 面对成批候选需求，先建立可追溯需求池、识别重复与依赖，再分批进入分析。
+- 按需把分析状态保存为项目私有目录中的结构化需求卡，跨会话按同一目录读取，并生成简洁 Backlog 视图。
 - 在多个候选需求之间形成有依据的优先级与投入决策。
 - 将本期需求拆成逐项可验收的功能点，自动生成 QA 可据以编写测试用例的验收标准，再纳入 PRD。
 - 普通模式只有通过准入门槛后才生成正式 PRD；强制执行模式由用户明确触发，先生成方案与验收标准再生成 PRD。
@@ -313,7 +314,7 @@ Skill 会将有出处、有日期的外部发现回填 04/05；竞品宣传不�
 
 [完整输入→输出案例](examples/normal-end-to-end.md)展示一个虚构的 0→1 内部查询工具需求：原始材料提出“做教室预约系统”，Skill 先区分真实查找问题与候选方案，再按 01–10 留下阶段判断，最后将受控试点范围写成含 `FR`、`AC` 和结束标记的简版 PRD。README 中的短提示词用于快速调用；需要判断输出质量时，请看这份完整案例，而不是只看提示词。案例里的数据、访谈和评审意见均为**合成材料**，不能作为现实需求的证据；案例也不声称已经访问系统或交付 PDF。
 
-[回归评测说明](evals/README.md)与 [测试用例集](evals/cases.jsonl)覆盖引述或疑问句误触发“必须做”、领导指定但证据不足、明确强制执行、普通 PRD 门槛不足、方案失败后的替代比较、强制范围跨轮扩散、0→1 无系统凭证、未知规则造成 QA 编写受阻，以及未授权外部扫描。每个用例同时列出应出现的行为、禁止行为和**合成错误示例**，便于对比规则修改前后的表现；错误示例并非真实运行记录。按独立上下文运行并核对实际输出和文件，不以关键词命中代替人工判断。
+[回归评测说明](evals/README.md)与 [测试用例集](evals/cases.jsonl)覆盖“必须做”误触发与范围扩散、普通 PRD 门槛、0→1 无系统凭证、验收规则未知、批量依赖和排期，以及跨会话重载、私有数据边界、旧证据复核与修订冲突。每个用例同时列出应出现的行为、禁止行为和**合成错误示例**，便于对比规则修改前后的表现；错误示例并非真实运行记录。按独立上下文运行并核对实际输出和文件，不以关键词命中代替人工判断。
 
 ## 批量需求与需求池
 
@@ -331,6 +332,37 @@ Skill 会将有出处、有日期的外部发现回填 04/05；竞品宣传不�
 | REQ-017 | 模板上传 | 疑似重复待核 | 可能与 REQ-001 同一场景 | 核对用户任务后合并或保留 |
 
 排期只给**条件化假设**：例如“若字段映射规则确定且研发容量可用，则 REQ-001 可进入下一轮方案评审”。没有容量、估时或真实截止，就不编造日期或承诺交付波次。粗筛不是 [08 正式优先级与投入决策](references/08-prioritization.md)：进入首批的普通需求仍须各自完成适用分析与门槛；当前用户明确设为强制执行的项按 ID 单独记录、后续走方案与验收路径，若本轮只要求粗筛，也不擅自生成 PRD。操作细则见[批量需求与需求池](references/requirement-pool.md)。
+
+## 跨会话需求库与 Backlog
+
+当需求需要持续跟进时，可以把每个稳定 ID 保存为项目专用目录中的一张 JSON 卡片；`list` 从卡片即时生成 Markdown 或 JSON Backlog。卡片记录范围、模式、生命周期状态、优先级、依赖、决策历史、证据来源和下一步。**JSON 是唯一可写记录；Markdown 卡片与 Backlog 是派生视图**，无需维护两套数据。
+
+这个能力不等于 AI 自动记住过去的聊天。首次建库要指定一个**在公开 Skill 仓库之外**的可写绝对路径；以后在新会话中仍需提供同一目录路径，或在项目上下文里明确绑定它。此版本不会自动迁移以前的对话或需求池。真实业务需求、客户资料与凭证不要提交到本 Skill 的公开 GitHub 仓库；卡片也不保存密码、令牌或不必要的个人信息。详细规则见[需求状态持久化](references/requirement-state.md)。
+
+下面的路径只是示意。先在自己的受控项目目录初始化，项目名要与待保存卡片的 `project` 完全一致；从[JSON 卡片模板](templates/requirement-card.json)复制一份到**项目目录或其他私有工作区**，替换示例值后再保存：
+
+```bash
+python3 scripts/backlog.py --root /absolute/path/to/private-product/backlog init --project '我的产品'
+python3 scripts/backlog.py --root /absolute/path/to/private-product/backlog save --input /absolute/path/to/private-product/draft-REQ-001.json
+python3 scripts/backlog.py --root /absolute/path/to/private-product/backlog show --id REQ-001 --format markdown
+python3 scripts/backlog.py --root /absolute/path/to/private-product/backlog list --format markdown
+```
+
+修改已有卡片时，先用 `show --id REQ-001 --format json` 查看脚本维护的 `revision`，以当前内容为基础保留既有决策，再提交更新：
+
+```bash
+python3 scripts/backlog.py --root /absolute/path/to/private-product/backlog save --input /absolute/path/to/private-product/draft-REQ-001.json --expected-revision 1 --note '补充验证结果与下一步'
+```
+
+修订号只是示例，须用实际读到的值；冲突时重读并合并，不直接覆盖。`decisions` 按时间追加，不删除或改写旧判断；新建时直接设为强制模式、非“评估中”状态或正式优先级，以及更新时改变模式、状态、范围或优先级，都必须有来源非空的新决策。其他字段变更需说明原因，但不强迫补造正式决策。每次更新前的旧卡保存在项目目录的 `revisions/<ID>/rev-<N>.json`，可追溯原范围、来源和依赖；`show --id REQ-001 --revision 1 --format json` 可读取旧版，省略 `--revision` 读取最新版。当前 Backlog 仍只读取最新版。来源建议标明材料标识、日期与覆盖范围，便于以后判断是否过期；新会话读到的记录只是**上次的判断**，仍要核对范围、证据、依赖和外部现状。一个项目数据目录只对应一个项目。
+
+Backlog 只展示紧凑的 `ID/标题、状态、优先级、依赖、最近决策、更新时间、下一步`。状态限定为“评估中 / 验证中 / 实施中 / 已暂停”，描述进度，不等于产品批准或上线；未知优先级在 JSON 中为 `null`、Markdown 中显示“未确定”，不把首批分析、真实截止或“实施中”自动换成 08 的正式优先级。需要机器读取时改用 `list --format json`。
+
+跨会话接续可这样说：
+
+```text
+$read-her-heart 我的项目需求库在 /absolute/path/to/private-product/backlog。请读取 REQ-001，先检查上次决策的证据时效、范围和依赖是否改变，再继续分析；只更新受影响的阶段。
+```
 
 ## 需求分类
 
@@ -519,6 +551,7 @@ $read-her-heart
 | 决策记录 | [`decision-record.md`](templates/decision-record.md) | 普通模式记录七层判断、投入出口与重开条件 |
 | 验证 Brief | [`validation-brief.md`](templates/validation-brief.md) | 单个关键假设尚需最小验证时 |
 | 需求池 | [`requirement-pool.md`](templates/requirement-pool.md) | 20–30 条候选需求先去重、识别依赖并分批分析时 |
+| 持久化需求卡 | [`requirement-card.json`](templates/requirement-card.json) | 跨会话管理时复制到项目私有目录，替换合成示例内容后保存 |
 | A4 中文 PDF 版式 | [`prd-a4.html`](templates/prd-a4.html) | 有 HTML→PDF 导出能力时，填入标题和已完成的正文后导出 |
 
 `prd-a4.html` 是带内联打印样式的**源模板，不是预生成的 PDF**。实际运行仍要生成可下载文件，并按 [10 PRD 生成](references/10-prd-generation.md)做一次轻量的有效性、结束标记与 `FR`/`AC` 检查；具体导出器若不支持 CSS 页码或中文字体，需适配而不是宣称已正确导出。
@@ -551,6 +584,10 @@ read-her-heart/
 ├── evals/
 │   ├── README.md
 │   └── cases.jsonl
+├── scripts/
+│   └── backlog.py
+├── tests/
+│   └── test_backlog.py
 ├── templates/
 │   ├── prd-simple.md
 │   ├── prd-standard.md
@@ -558,6 +595,7 @@ read-her-heart/
 │   ├── decision-record.md
 │   ├── validation-brief.md
 │   ├── requirement-pool.md
+│   ├── requirement-card.json
 │   └── prd-a4.html
 └── references/
     ├── 01-requirement-understanding.md
@@ -576,6 +614,7 @@ read-her-heart/
     ├── mandatory-execution.md
     ├── requirement-classification.md
     ├── requirement-pool.md
+    ├── requirement-state.md
     └── system-inspection.md
 ```
 
@@ -584,6 +623,7 @@ read-her-heart/
 - [`references/`](references/)：按阶段加载的详细方法和安全规则。
 - [`examples/`](examples/) 与 [`evals/`](evals/)：供用户查看完整产物、供维护者做回归；合成内容不作为真实需求证据。
 - [`templates/`](templates/)：正式 PRD、决策与验证产物的可编辑模板，以及 A4 中文 PDF 版式源文件。
+- [`scripts/backlog.py`](scripts/backlog.py)：在项目专用目录保存、读取结构化卡片，生成紧凑 Backlog；真实需求数据不随 Skill 分发。
 
 ## 设计原则
 
@@ -632,6 +672,10 @@ read-her-heart/
 ### 每次都必须完整输出十个阶段吗？
 
 不需要。十阶段用于组织工作，不是每次回复的十个章节。普通评估简要展示七层判断，追问只说明变化；完整记录按需展开。用户只要求某一阶段时，只完成该阶段和必要的上游门槛。
+
+### 新会话能自动记住以前的需求吗？
+
+不能仅靠聊天记忆。需要先把需求保存到项目专用目录；新会话提供同一个绝对路径和需求 ID，Skill 才能读取卡片并接续。旧记录是历史判断，继续前仍会核对证据是否过期、范围或依赖是否变化。以前的聊天和一次性需求池不会被自动导入；[跨会话需求库用法](#跨会话需求库与-backlog)有具体命令。
 
 ### 系统实查是不是必须提供账号密码？
 
