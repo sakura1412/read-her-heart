@@ -10,7 +10,7 @@
 [![Language](https://img.shields.io/badge/language-中文-blue?style=flat-square)](#)
 [![GitHub last commit](https://img.shields.io/github/last-commit/sakura1412/read-her-heart?style=flat-square)](https://github.com/sakura1412/read-her-heart/commits/main)
 
-[快速开始](#快速开始) · [工作流](#十阶段产品工作流) · [使用示例](#使用示例) · [外部扫描](#可选外部扫描) · [验收标准](#验收标准在-prd-之前) · [PRD 门槛](#prd-准入门槛) · [安全边界](#系统实查与安全边界)
+[快速开始](#快速开始) · [工作流](#十阶段产品工作流) · [完整案例与评测](#完整案例与回归评测) · [输出模板](#可复用输出模板) · [外部扫描](#可选外部扫描) · [验收标准](#验收标准在-prd-之前) · [PRD 门槛](#prd-准入门槛) · [安全边界](#系统实查与安全边界)
 
 </div>
 
@@ -302,6 +302,12 @@ $read-her-heart
 
 Skill 会将有出处、有日期的外部发现回填 04/05；竞品宣传不等于已核实能力，公开资料也不能替代本产品的用户证据与研发/采购评估。
 
+## 完整案例与回归评测
+
+[完整输入→输出案例](examples/normal-end-to-end.md)展示一个虚构的 0→1 内部查询工具需求：原始材料提出“做教室预约系统”，Skill 先区分真实查找问题与候选方案，再按 01–10 留下阶段判断，最后将受控试点范围写成含 `FR`、`AC` 和结束标记的简版 PRD。README 中的短提示词用于快速调用；需要判断输出质量时，请看这份完整案例，而不是只看提示词。案例里的数据、访谈和评审意见均为**合成材料**，不能作为现实需求的证据；案例也不声称已经访问系统或交付 PDF。
+
+[回归评测说明](evals/README.md)与 [测试用例集](evals/cases.jsonl)覆盖引述或疑问句误触发“必须做”、领导指定但证据不足、明确强制执行、普通 PRD 门槛不足、方案失败后的替代比较、强制范围跨轮扩散、0→1 无系统凭证、未知规则造成 QA 编写受阻，以及未授权外部扫描。每个用例同时列出应出现的行为、禁止行为和**合成错误示例**，便于对比规则修改前后的表现；错误示例并非真实运行记录。按独立上下文运行并核对实际输出和文件，不以关键词命中代替人工判断。
+
 ## 需求分类
 
 Read Her Heart 使用“双轴分类”：
@@ -477,6 +483,21 @@ $read-her-heart
 
 运行环境需要具备本地文件生成与 PDF 导出能力。若缺少工具、字体或权限，Skill 会说明具体限制并保留源稿，不会把仅有聊天正文视为 PDF 已交付。生成的业务 PRD 默认保存在当前任务的输出目录，不会自动上传到本 Skill 的公开仓库。
 
+## 可复用输出模板
+
+正式 PRD 仍须先经过对应模式的门槛：普通模式通过 08 的实施投入决策；强制模式先完成方案与 09 逐功能点验收。模板只统一交付结构，不会替代判断或自动补齐未知规则。复制后删除不适用章节、替换占位内容，并沿用 09 的 `FR`/`AC` 编号。
+
+| 产物 | 模板 | 何时使用 |
+| --- | --- | --- |
+| 简版 PRD | [`prd-simple.md`](templates/prd-simple.md) | 五维均低、有依据的简单需求 |
+| 标准版 PRD | [`prd-standard.md`](templates/prd-standard.md) | 中等复杂，或未知项暂按中等处理 |
+| 完整版 PRD | [`prd-full.md`](templates/prd-full.md) | 复杂/战略或已知高影响需求；对应上述 12 项结构 |
+| 决策记录 | [`decision-record.md`](templates/decision-record.md) | 普通模式记录七层判断、投入出口与重开条件 |
+| 验证 Brief | [`validation-brief.md`](templates/validation-brief.md) | 单个关键假设尚需最小验证时 |
+| A4 中文 PDF 版式 | [`prd-a4.html`](templates/prd-a4.html) | 有 HTML→PDF 导出能力时，填入标题和已完成的正文后导出 |
+
+`prd-a4.html` 是带内联打印样式的**源模板，不是预生成的 PDF**。实际运行仍要生成可下载文件，并按 [10 PRD 生成](references/10-prd-generation.md)做一次轻量的有效性、结束标记与 `FR`/`AC` 检查；具体导出器若不支持 CSS 页码或中文字体，需适配而不是宣称已正确导出。
+
 ## 输出会根据证据改变
 
 默认回复精简：普通评估先用一行说明五维复杂度与分析深度，再按七层顺序每层一句判断与关键依据；追问只回答新增内容；PRD 交付提供简短说明、关键待确认项与 PDF/源稿链接。完整方案和需求细节保留在文件中，不在聊天里重复全文。
@@ -500,6 +521,18 @@ read-her-heart/
 ├── README.md
 ├── agents/
 │   └── openai.yaml
+├── examples/
+│   └── normal-end-to-end.md
+├── evals/
+│   ├── README.md
+│   └── cases.jsonl
+├── templates/
+│   ├── prd-simple.md
+│   ├── prd-standard.md
+│   ├── prd-full.md
+│   ├── decision-record.md
+│   ├── validation-brief.md
+│   └── prd-a4.html
 └── references/
     ├── 01-requirement-understanding.md
     ├── 02-system-investigation.md
@@ -521,7 +554,9 @@ read-her-heart/
 
 - [`SKILL.md`](SKILL.md)：轻量入口、阶段路由、七层门槛和交付控制。
 - [`agents/openai.yaml`](agents/openai.yaml)：Codex UI 展示信息和默认调用提示。
-- [`references/`](references/)：按阶段加载的详细方法、模板和安全规则。
+- [`references/`](references/)：按阶段加载的详细方法和安全规则。
+- [`examples/`](examples/) 与 [`evals/`](evals/)：供用户查看完整产物、供维护者做回归；合成内容不作为真实需求证据。
+- [`templates/`](templates/)：正式 PRD、决策与验证产物的可编辑模板，以及 A4 中文 PDF 版式源文件。
 
 ## 设计原则
 
@@ -597,7 +632,7 @@ read-her-heart/
 - 普通模式不允许 PRD 绕过问题、价值、方案、证据和风险门槛；强制执行例外必须由当前用户显式触发，方案阶段仍不可跳过，并保留安全、权限、隐私、合规与真实性约束。
 - 保持 `SKILL.md` 精简，将阶段细节放入对应 `references/` 文件。
 
-提交前建议检查 Markdown 链接、YAML frontmatter、十阶段引用和七层顺序，并确认所有新增示例不会泄露真实用户或业务数据。
+提交前建议检查 Markdown 链接、YAML frontmatter、十阶段引用和七层顺序，使用 [`evals/`](evals/) 在隔离上下文回归，并确认所有新增示例不会泄露真实用户或业务数据。
 
 ---
 

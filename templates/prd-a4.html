@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 18mm 19mm;
+      @bottom-right {
+        content: counter(page);
+        color: #64748b;
+        font: 9pt "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+      }
+    }
+
+    :root { color-scheme: light; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #172033;
+      background: #fff;
+      font: 10.5pt/1.65 "PingFang SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+      overflow-wrap: anywhere;
+    }
+    main { max-width: 100%; }
+    h1, h2, h3, h4 { color: #13243a; line-height: 1.35; break-after: avoid-page; }
+    h1 { font-size: 20pt; margin: 0 0 7mm; padding-bottom: 3mm; border-bottom: 1.5pt solid #2463a5; }
+    h2 { font-size: 14pt; margin: 8mm 0 3mm; padding-bottom: 1.5mm; border-bottom: 0.5pt solid #cbd5e1; }
+    h3 { font-size: 11.5pt; margin: 5mm 0 2mm; }
+    h4 { font-size: 10.5pt; margin: 4mm 0 1.5mm; }
+    p, ul, ol, blockquote, pre, table { margin: 0 0 3.5mm; }
+    ul, ol { padding-left: 1.5em; }
+    li { margin: 1mm 0; }
+    li > p { margin-bottom: 1mm; }
+    blockquote { padding: 1mm 0 1mm 4mm; border-left: 2pt solid #94a3b8; color: #475569; }
+    a { color: #15589b; text-decoration: none; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 9pt; }
+    code { background: #f1f5f9; padding: 0 1mm; }
+    pre { padding: 3mm; background: #f8fafc; white-space: pre-wrap; overflow-wrap: anywhere; }
+    pre code { background: transparent; padding: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 9pt; line-height: 1.5; }
+    thead { display: table-header-group; }
+    tr { break-inside: avoid-page; }
+    th, td { border: 0.5pt solid #cbd5e1; padding: 2mm 2.5mm; vertical-align: top; }
+    th { background: #eaf1f8; font-weight: 600; text-align: left; }
+    hr { border: 0; border-top: 0.5pt solid #cbd5e1; margin: 5mm 0; }
+    img { max-width: 100%; height: auto; }
+
+    @media screen {
+      body { max-width: 210mm; margin: 0 auto; padding: 20mm 18mm; box-shadow: 0 0 12px #d4dbe4; }
+    }
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 把对应 PRD Markdown 模板渲染为 HTML 后替换 CONTENT_HTML；标题、版本、日期、状态由源稿提供。 -->
+  <main>{{CONTENT_HTML}}</main>
+</body>
+</html>
