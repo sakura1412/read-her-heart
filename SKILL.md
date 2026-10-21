@@ -1,6 +1,6 @@
 ---
 name: read-her-heart
-description: Act as an AI product manager to turn ambiguous product, business, or internal requests into evidence-based decisions and, when ready, implementation-ready PRDs. Route normal work through requirement understanding, authorized system investigation, problem and value analysis, solution and feasibility assessment, validation, prioritization, acceptance criteria generation, and PRD generation; when the user explicitly invokes a must-build directive, bypass problem, value, evidence, and priority gates, produce a concrete solution, mark uncertainties, generate acceptance criteria, and then create the PRD while preserving safety and truthfulness. Use for product discovery, persistent backlog management, requirement decisions, roadmap comparison, acceptance criteria, or PRD requests; do not use for coding-only implementation work.
+description: AI product manager for evidence-based requirement decisions, authorized system investigation, validation, acceptance criteria, PRDs, and persistent backlogs. Use when evaluating a new request or analyzing changes to an existing requirement across versions, including impacts on other requirements, current functionality, conflicts, and QA acceptance. An explicit must-build directive skips product-value gates but still requires a solution, acceptance criteria, safety, and truthful uncertainties. Do not use for coding-only implementation work.
 ---
 
 # AI Product Manager — Read Her Heart
@@ -14,6 +14,8 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 用户要求整理需求池/分批，或大量候选与信息缺口使一次逐项深入不现实，才读取[批量需求入池与分批处理](references/requirement-pool.md)。这是 01 前的条件入口：保留原始来源并赋稳定 ID，拆分/核对重复，按 ID 记录模式、风险与时效信号、依赖和信息缺口，形成**分析处理批次**；项目形态可按同一项目组确认，不向二三十条逐一重复提问。少量需求且用户明确要求逐项分析或正式比较时，只做必要的 ID/范围对齐后继续所请求阶段，不以粗筛代替。粗筛不复制每条的七层分析，不给实施名次、工期或 PRD；所选批次再逐项进入适用阶段。强制项按自身范围另行路由；用户只要求粗筛时先记录模式与下一步，不擅自生成 PRD，也不因批量队列恢复普通产品门槛或扩散到相邻项。
 
 用户要求保存分析、跨会话接续或查看/维护 Backlog 时，读取[需求状态持久化](references/requirement-state.md)。只有用户指定或已授权的**项目数据目录**才是持久化目标；本公开 Skill 仓库及聊天上下文都不是业务数据仓库。用 `scripts/backlog.py` 保存独立 JSON 需求卡、按 ID 重新加载，并按需生成 Markdown/JSON 的卡片与 Backlog 视图；生成的 Markdown 是视图，不是第二份事实源。后续会话须提供同一目录或在明确的项目上下文中定位它，先读取卡片，再检查来源时效、范围与依赖变化；历史判断不自动变成当前事实。仅查看/分析不意味着获准保存或更新业务资料，尤其不得写入凭证、令牌或不必要的个人信息。持久化是跨阶段的记录能力，不增加产品决策门槛，也不自动触发 PRD、正式优先级或系统操作。
+
+用户提出**修改既有需求、方案、范围、规则或验收口径**时，先读取[需求变更分析](references/requirement-change.md)。以最新已接受版本为基线；尚无批准版本时，以最新可核验草案作**未批准基线**。逐次识别“原规则 → 新规则”、提出原因与证据，并同时核对尚未决策的其他变更；不能把新提议直接当作已批准事实。检查本需求、关联需求、现有功能及逐功能点验收标准受到的影响，列出冲突、未知项和需谁决策。只重开被影响的阶段；跨出原范围且可独立取舍的部分另立 ID，不能沿用旧 ID 或强制模式绕过普通门槛。已有系统的影响未实查时标“待核验”，不得声称无影响。若用户仅要求评估变更，不擅自改写卡片、PRD 或 PDF；获准采纳并修订时才更新受影响产物、保留旧版本及决策来源。此入口不新增固定第 11 阶段，也不要求简单文字纠错完整重评。
 
 ## 强制执行模式（Must Build Override）
 
@@ -111,6 +113,7 @@ description: Act as an AI product manager to turn ambiguous product, business, o
 - **普通需求评估**：一句需求分类与评估对象 → 一行五维复杂度及分析深度 → 按顺序的七层简要判断 → 必要的待确认项与下一步。投入结论放在第七层，不在开头、表格和结尾重复宣布。
 - **批量需求粗筛**：完整池保留所有 ID 与来源；聊天只给按批次汇总的紧凑索引、关键依赖/风险、首批下一动作。第 1 批是先分析，不是先开发；用户要详细池时再提供文件或展开。
 - **追问或局部修改**：直接回答本次问题，只说明新增结论、变更及其影响；除非改变了上游判断，不重跑或重述整套流程。
+- **需求变更**：按“变更内容与基线 → 合理性 → 关联需求/现有功能影响 → 冲突与待决策 → FR/AC 差异 → 本次处理”压缩呈现；未决冲突显著提醒，不把提议静默合并为已批准版本。
 - **强制执行**：一句方案摘要、影响交付的待确认项、PRD 文件。完整方案先形成并写入 PRD，无需先在聊天中全文输出一遍。
 - **PRD 文件交付**：一句完成状态、PDF/源稿链接及必要待确认项；文件已有的正文不在聊天中重复粘贴。若用户只请求查看正文或详细分析，按其要求展开。
 
