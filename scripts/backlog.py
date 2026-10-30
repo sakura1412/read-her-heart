@@ -26,6 +26,9 @@ STORE_MARKER = ".read-her-heart-backlog.json"
 STORE_KIND = "read-her-heart-backlog"
 SCHEMA_VERSION = 1
 ID_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
+WINDOWS_RESERVED_IDS = {"CON", "PRN", "AUX", "NUL"} | {
+    f"{prefix}{number}" for prefix in ("COM", "LPT") for number in range(1, 10)
+}
 STATUSES = {"评估中", "验证中", "实施中", "已暂停"}
 MODES = {"normal", "mandatory"}
 DEPENDENCY_TYPES = {
@@ -63,6 +66,8 @@ def valid_text(value, label, *, allow_empty=False):
 def valid_id(value, label="id"):
     if not isinstance(value, str) or not ID_PATTERN.fullmatch(value):
         raise BacklogError(f"{label} 必须是以英文字母开头、仅含英数字/下划线/连字符的安全 ID（最多 64 字符）")
+    if value.upper() in WINDOWS_RESERVED_IDS:
+        raise BacklogError(f"{label} 不能使用 Windows 保留设备名")
 
 
 def valid_refs(value, label):
@@ -317,23 +322,27 @@ def store_lock(root):
     if path.is_symlink():
         raise BacklogError("需求库锁文件不能是符号链接")
     fd = os.open(str(path), os.O_CREAT | os.O_RDWR, 0o600)
+    acquired = False
     try:
         if fcntl is not None:
             fcntl.flock(fd, fcntl.LOCK_EX)
         else:  # pragma: no cover - Windows fallback
             import msvcrt
-            os.write(fd, b"0")
+            # Windows permits locking beyond EOF; do not write before taking the lock.
             os.lseek(fd, 0, os.SEEK_SET)
             msvcrt.locking(fd, msvcrt.LK_LOCK, 1)
+        acquired = True
         yield
     finally:
-        if fcntl is not None:
-            fcntl.flock(fd, fcntl.LOCK_UN)
-        else:  # pragma: no cover - Windows fallback
-            import msvcrt
-            os.lseek(fd, 0, os.SEEK_SET)
-            msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
-        os.close(fd)
+        try:
+            if acquired:
+                if fcntl is not None:
+                    fcntl.flock(fd, fcntl.LOCK_UN)
+                else:  # pragma: no cover - Windows fallback
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        finally:
+            os.close(fd)
 
 
 def card_path(cards, card_id):
@@ -583,6 +592,10 @@ def build_parser():
 
 
 def main(argv=None):
+    # Keep redirected output readable across hosts with different locale encodings.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     args = build_parser().parse_args(argv)
     try:
         root = store_root(args.root)

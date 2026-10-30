@@ -1,5 +1,6 @@
 """End-to-end checks for the local requirement-card store."""
 
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -7,10 +8,14 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "backlog.py"
 SKILL_ROOT = SCRIPT.parents[1]
+BACKLOG_SPEC = importlib.util.spec_from_file_location("backlog", SCRIPT)
+backlog = importlib.util.module_from_spec(BACKLOG_SPEC)
+BACKLOG_SPEC.loader.exec_module(backlog)
 
 
 class BacklogCliTests(unittest.TestCase):
@@ -21,11 +26,11 @@ class BacklogCliTests(unittest.TestCase):
         self.root = self.base / "project-backlog"
         self.run_cli("init", "--project", "演示项目")
 
-    def run_cli(self, *args, expected=0, root=None):
-        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+    def run_cli(self, *args, expected=0, root=None, io_encoding="utf-8"):
+        environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONIOENCODING=io_encoding)
         result = subprocess.run(
             [sys.executable, str(SCRIPT), "--root", str(root or self.root), *args],
-            capture_output=True, text=True, env=environment,
+            capture_output=True, text=True, encoding="utf-8", env=environment,
         )
         self.assertEqual(result.returncode, expected, result.stderr or result.stdout)
         return result
@@ -130,6 +135,31 @@ class BacklogCliTests(unittest.TestCase):
         self.assertIn("敏感验证字段", result.stderr)
         self.assertNotIn("should-not-be-saved", result.stderr)
         self.assertEqual(list((self.root / "cards").iterdir()), [])
+
+    def test_rejects_windows_device_ids_without_creating_cards(self):
+        for card_id in ("CON", "con", "PrN", "AUX", "NUL", "COM1", "com9", "LPT1", "lPt9"):
+            with self.subTest(card_id=card_id):
+                result = self.save(self.input_card(card_id=card_id), expected=2)
+                self.assertIn("Windows 保留设备名", result.stderr)
+        self.assertEqual(list((self.root / "cards").iterdir()), [])
+        self.save(self.input_card(card_id="CON-001"))
+        self.assertEqual(self.show("CON-001")["id"], "CON-001")
+
+    def test_utf8_pipes_override_legacy_encoding_for_success_and_errors(self):
+        root = self.base / "中文需求库"
+        options = {"root": root, "io_encoding": "cp1252:strict"}
+        initialized = self.run_cli("init", "--project", "演示项目", **options)
+        self.assertEqual(json.loads(initialized.stdout)["project"], "演示项目")
+        card = self.input_card(title="导入客户 🚀")
+        input_path = self.write_input(card)
+        saved = self.run_cli("save", "--input", str(input_path), **options)
+        self.assertEqual(json.loads(saved.stdout)["revision"], 1)
+        shown = self.run_cli("show", "--id", card["id"], **options)
+        self.assertEqual(json.loads(shown.stdout)["title"], card["title"])
+        listing = self.run_cli("list", "--format", "markdown", **options)
+        self.assertIn(card["title"], listing.stdout)
+        missing = self.run_cli("show", "--id", "REQ-MISSING", expected=2, **options)
+        self.assertIn("文件不存在", missing.stderr)
 
     def test_rejects_unmarked_or_skill_directory_and_other_project(self):
         blank = self.base / "unmarked"
@@ -259,6 +289,60 @@ class BacklogCliTests(unittest.TestCase):
         card = self.input_card()
         card["status"] = "实施中"
         self.assertIn("非评估状态", self.save(card, expected=2).stderr)
+
+
+class BacklogWindowsLockTests(unittest.TestCase):
+    """Exercise the Windows branch with a simulated msvcrt API on every host."""
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.msvcrt = mock.Mock(LK_LOCK=1, LK_UNLCK=2)
+        patches = (
+            mock.patch.object(backlog, "fcntl", None),
+            mock.patch.dict(sys.modules, {"msvcrt": self.msvcrt}),
+        )
+        for patcher in patches:
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def assert_fd_closed(self, fd):
+        with self.assertRaises(OSError):
+            os.fstat(fd)
+
+    def test_locks_empty_file_without_writing_before_acquisition(self):
+        with mock.patch.object(backlog.os, "write", side_effect=AssertionError("unexpected lock-file write")):
+            with backlog.store_lock(self.root):
+                fd = self.msvcrt.locking.call_args[0][0]
+                self.msvcrt.locking.assert_called_once_with(fd, self.msvcrt.LK_LOCK, 1)
+                self.assertEqual(os.lseek(fd, 0, os.SEEK_CUR), 0)
+                self.assertEqual(os.fstat(fd).st_size, 0)
+        self.assertEqual(self.msvcrt.locking.call_args_list, [
+            mock.call(fd, self.msvcrt.LK_LOCK, 1),
+            mock.call(fd, self.msvcrt.LK_UNLCK, 1),
+        ])
+        self.assert_fd_closed(fd)
+
+    def test_failed_acquisition_preserves_error_and_closes_without_unlocking(self):
+        acquisition_error = OSError("acquire failed")
+        self.msvcrt.locking.side_effect = [acquisition_error, OSError("unlock failed")]
+        with self.assertRaises(OSError) as raised:
+            with backlog.store_lock(self.root):
+                self.fail("must not enter the protected operation without a lock")
+        self.assertIs(raised.exception, acquisition_error)
+        fd = self.msvcrt.locking.call_args[0][0]
+        self.msvcrt.locking.assert_called_once_with(fd, self.msvcrt.LK_LOCK, 1)
+        self.assert_fd_closed(fd)
+
+    def test_failed_unlock_still_closes_descriptor(self):
+        release_error = OSError("unlock failed")
+        self.msvcrt.locking.side_effect = [None, release_error]
+        with self.assertRaises(OSError) as raised:
+            with backlog.store_lock(self.root):
+                fd = self.msvcrt.locking.call_args[0][0]
+        self.assertIs(raised.exception, release_error)
+        self.assert_fd_closed(fd)
 
 
 if __name__ == "__main__":
