@@ -77,6 +77,15 @@ Read Her Heart 为 Codex、WorkBuddy 和 Claude Code 提供同一套有决策纪
 
 ## 十阶段产品工作流
 
+![Read Her Heart 十阶段产品工作流](docs/product-workflow.png)
+
+[查看高清 PNG](docs/product-workflow.png) · [查看可缩放 SVG](docs/product-workflow.svg)
+
+<details>
+<summary>查看工作流 Mermaid 源码</summary>
+
+<!-- 修改下方流程后，运行 scripts/render-workflow.mjs 同步生成 SVG 与 PNG。 -->
+
 ```mermaid
 flowchart TD
     BT{需要批量分诊?} -->|否| S
@@ -139,6 +148,8 @@ flowchart TD
     Z -->|有新依据，提出有限再授权| RV
     I -->|实施门槛满足，决定实施投入| N
 ```
+
+</details>
 
 结果回填与停止检查分别执行：上限已到仍可用已有证据继续分析，但不能新增取证；若后续分析再次提出验证，仍受原累计限制与 08 的有限投入决定约束。事前评审是 07 与 08 之间的条件分支，不新增固定阶段；停止追加验证或采取安全措施不等评审，新验证或受控实施的投入判断则须完成适用评审或复用仍有效记录。
 
